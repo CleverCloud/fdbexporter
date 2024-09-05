@@ -46,6 +46,6 @@ pub struct ClientCoordinators {
 #[derive(Deserialize)]
 pub struct ClientCoordinator {
     pub address: SocketAddrV4,
-    pub protocol: String,
+    pub protocol: Option<String>,
     pub reachable: bool,
 }
