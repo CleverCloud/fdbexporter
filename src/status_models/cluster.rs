@@ -16,7 +16,7 @@ pub struct ClusterStatus {
     pub database_available: bool,
     #[serde(default)]
     pub machines: HashMap<MachineId, ClusterMachine>,
-    pub data: ClusterData,
+    pub data: Option<ClusterData>,
     pub processes: HashMap<ProcessId, ClusterProcess>,
     pub latency_probe: Option<ClusterLatencyProbe>,
     pub generation: i64,

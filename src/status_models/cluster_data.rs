@@ -4,14 +4,14 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 #[cfg_attr(test, derive(Default))]
 pub struct ClusterData {
-    pub average_partition_size_bytes: i64,
-    pub least_operating_space_bytes_log_server: i64,
-    pub least_operating_space_bytes_storage_server: i64,
+    pub average_partition_size_bytes: Option<i64>,
+    pub least_operating_space_bytes_log_server: Option<i64>,
+    pub least_operating_space_bytes_storage_server: Option<i64>,
     pub moving_data: Option<ClusterDataMoving>,
-    pub partitions_count: i64,
-    pub total_disk_used_bytes: i64,
-    pub total_kv_size_bytes: i64,
-    pub state: ClusterDataState,
+    pub partitions_count: Option<i64>,
+    pub total_disk_used_bytes: Option<i64>,
+    pub total_kv_size_bytes: Option<i64>,
+    pub state: Option<ClusterDataState>,
 }
 
 // jq: .cluster.data.state.name

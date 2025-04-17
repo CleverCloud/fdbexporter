@@ -36,7 +36,9 @@ impl MetricsConvertible for ClusterStatus {
             machine.to_metrics(&labels);
         }
 
-        self.data.to_metrics(&[]);
+        if let Some(data) = &self.data {
+            data.to_metrics(&[]);
+        }
 
         for (process_id, process) in &self.processes {
             let machine_id = match &process.machine_id {

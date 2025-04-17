@@ -52,20 +52,36 @@ lazy_static! {
 
 impl MetricsConvertible for ClusterData {
     fn to_metrics(&self, _: &[&str]) {
-        P_CLUSTER_TOTAL_KV_SIZE_BYTES.set(self.total_kv_size_bytes);
-        P_CLUSTER_TOTAL_DISK_USED_BYTES.set(self.total_disk_used_bytes);
-        P_CLUSTER_PARTITION_COUNT.set(self.partitions_count);
-        P_CLUSTER_LEAST_SPACE_BYTES_STORAGE_SERVER
-            .set(self.least_operating_space_bytes_storage_server);
-        P_CLUSTER_LEAST_SPACE_BYTES_LOG_SERVER_GAUGE
-            .set(self.least_operating_space_bytes_log_server);
-
-        P_CLUSTER_AVG_PARTITION_BYTES_GAUGE.set(self.average_partition_size_bytes);
-
-        if let Some(health) = self.state.healthy {
-            P_CLUSTER_STATE_HEALTHY.set(health as i64);
+        if let Some(total_kv_size_bytes) = self.total_kv_size_bytes {
+            P_CLUSTER_TOTAL_KV_SIZE_BYTES.set(total_kv_size_bytes);
         }
-        P_CLUSTER_STATE_CURRENT.set(self.state.name as i64);
+        if let Some(total_disk_used_bytes) = self.total_disk_used_bytes {
+            P_CLUSTER_TOTAL_DISK_USED_BYTES.set(total_disk_used_bytes);
+        }
+        if let Some(partitions_count) = self.partitions_count {
+            P_CLUSTER_PARTITION_COUNT.set(partitions_count);
+        }
+        if let Some(least_operating_space_bytes_log_server) =
+            self.least_operating_space_bytes_log_server
+        {
+            P_CLUSTER_LEAST_SPACE_BYTES_LOG_SERVER_GAUGE
+                .set(least_operating_space_bytes_log_server);
+        }
+        if let Some(least_operating_space_bytes_storage_server) =
+            self.least_operating_space_bytes_storage_server
+        {
+            P_CLUSTER_LEAST_SPACE_BYTES_STORAGE_SERVER
+                .set(least_operating_space_bytes_storage_server);
+        }
+        if let Some(average_partition_size_bytes) = self.average_partition_size_bytes {
+            P_CLUSTER_AVG_PARTITION_BYTES_GAUGE.set(average_partition_size_bytes);
+        }
+        if let Some(state) = &self.state {
+            if let Some(health) = state.healthy {
+                P_CLUSTER_STATE_HEALTHY.set(health as i64);
+            }
+            P_CLUSTER_STATE_CURRENT.set(state.name as i64);
+        }
 
         if let Some(moving_data) = &self.moving_data {
             P_CLUSTER_MOVING_DATA_IN_FLIGHT_BYTES.set(moving_data.in_flight_bytes);
