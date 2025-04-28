@@ -1,5 +1,5 @@
 [package]
-name = "foundationdb-exporter"
+name = "fdbexporter"
 version = "0.1.0"
 edition = "2021"
 authors = [ "Alexandre Burgoni <alexandre.burgoni@clever-cloud.com>" ]
