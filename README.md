@@ -18,8 +18,8 @@ the container. You can start with [a sample cluster](#running-with-a-sample-foun
 to try the exporter.*
 
 ```
-# Pull exporter version 1.0.0 for FoundtionDB version 7.3.33
-docker pull clevercloud/foundationdb-exporter:1.0.0-7.3.33
+# Pull exporter version 2.0.1 for FoundtionDB version 7.3.63
+docker pull clevercloud/fdbexporter:2.0.0-7.3.63
 # Environment variables:
 #   FDB_COORDINATOR: DNS name of the coordinator node
 #   FDB_COORDINATOR_PORT: Port of the coordinator node process
@@ -28,7 +28,7 @@ docker run \
   -e FDB_NETWORKING_MODE=container \
   -e FDB_COORDINATOR=coordinator \
   -e FDB_COORDINATOR_PORT=4500 \
-  clevercloud/foundationdb-exporter:1.0.0-7.3.33
+  clevercloud/fdbexporter:latest-7.3.63
 ```
 
 The exporter images are tagged based on both the exporter version and on
@@ -39,13 +39,13 @@ tag for version `7.2` as it shouldn't be used in production.
 
 ### Binary
 
-Go to [releases](https://github.com/CleverCloud/foundationdb-exporter/releases) page
+Go to [releases](https://github.com/CleverCloud/fdbexporter/releases) page
 and download the compressed asset matching your system distribution.
 
 ```
 A monitoring tool for FoundationDB with exporting capabilities for prometheus
 
-Usage: foundationdb-exporter [OPTIONS]
+Usage: fdbexporter [OPTIONS]
 
 Options:
   -p, --port <PORT>            Listening port of the web server [env: FDB_EXPORTER_PORT=] [default: 9090]
@@ -60,8 +60,8 @@ Options:
 Our docker compose will run a fully functional FoundationDB cluster along with the exporter on port `9090`
 
 ```
-git clone git@github.com:clevercloud/foundationdb-exporter.git
-cd foundationdb-exporter
+git clone git@github.com:clevercloud/fdbexporter.git
+cd fdbexporter
 # Run a FoundationDB cluster with the exporter
 docker compose up -d
 # Fetch metrics available from the exporter
@@ -74,7 +74,7 @@ Rust `1.74.0` at least is required
 
 ```
 cargo build --release
-./target/release/foundationdb-exporter
+./target/release/fdbexporter
 ```
 
 ## Contributing

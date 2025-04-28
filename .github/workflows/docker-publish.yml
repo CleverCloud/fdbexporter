@@ -5,7 +5,7 @@ on:
 
 env:
   #REGISTRY: ghcr.io
-  IMAGE_NAME: clevercloud/foundationdb-exporter
+  IMAGE_NAME: clevercloud/fdbexporter
 
 jobs:
   determine-versions:

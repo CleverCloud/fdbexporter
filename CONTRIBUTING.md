@@ -13,10 +13,10 @@ docker compose up -d
 **You need to have `fdbcli` installed on your system, see
 [apple/foundationdb](https://github.com/apple/foundationdb/releases)**
 
-Generate `fdb.cluster` file from copying from `fdb-exporter` container:
+Generate `fdb.cluster` file from copying from `fdbexporter` container:
 
 ```
-export CONTAINER_ID=$(docker ps | grep "fdb-exporter" | awk '{print $1}')
+export CONTAINER_ID=$(docker ps | grep "fdbexporter" | awk '{print $1}')
 docker cp ${CONTAINER_ID}:/etc/foundationdb/fdb.cluster ./fdb.cluster
 ```
 

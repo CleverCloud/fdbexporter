@@ -1,5 +1,5 @@
 ARG FDB_VERSION=7.1.37
-ARG RUST_VERSION=1.74.1
+ARG RUST_VERSION=1.86.0
 # Build Stage
 FROM rust:${RUST_VERSION}-bullseye as builder
 
@@ -30,7 +30,7 @@ RUN dpkg -i foundationdb-clients_${FDB_VERSION}-1_amd64.deb
 WORKDIR /app
 
 # Copy the built artifact from the build stage
-COPY --from=builder /app/target/release/foundationdb-exporter .
+COPY --from=builder /app/target/release/fdbexporter .
 ADD .github/docker/run.sh /app/docker_entrypoint.sh
 
 # Set the command to run on container start

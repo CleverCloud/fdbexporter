@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
 
-  fdb-exporter:
+  fdbexporter:
     depends_on:
       - fdb-coordinator
     restart: always
@@ -45,4 +45,3 @@ services:
       - .env
     ports:
       - 9090:9090
-
