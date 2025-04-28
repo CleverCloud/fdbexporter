@@ -1,0 +1,23 @@
+[Unit]
+Description=FoundationDB Prometheus Exporter
+Documentation=https://github.com/CleverCloud/fdbexporter
+Requires=network.target local-fs.target time-sync.target
+After=network.target local-fs.target time-sync.target
+
+[Service]
+Type=simple
+
+RuntimeDirectory=fdbexporter
+PIDFile=/run/fdbexporter.pid
+
+ExecStart=/usr/bin/fdbexporter
+KillMode=mixed
+
+User=foundationdb
+Group=foundationdb
+
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target
