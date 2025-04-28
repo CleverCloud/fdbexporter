@@ -94,7 +94,7 @@ mod tests {
             ClusterStatus {
                 database_available: true,
                 machines: HashMap::new(),
-                data: ClusterData::default(),
+                data: Some(ClusterData::default()),
                 processes: HashMap::new(),
                 latency_probe: None,
                 generation: 1,

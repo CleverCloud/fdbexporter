@@ -22,7 +22,7 @@ jobs:
           ref: main
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
-          bin: foundationdb-exporter
+          bin: fdb-exporter
           tar: unix
           zip: windows
           token: ${{ secrets.GITHUB_TOKEN }}
