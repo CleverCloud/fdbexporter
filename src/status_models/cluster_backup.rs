@@ -17,8 +17,8 @@ pub struct ClusterBackup {
 
 #[derive(Deserialize)]
 pub struct ClusterBackupTag {
-    pub last_restorable_seconds_behind: f64,
-    pub last_restorable_version: i64,
+    pub last_restorable_seconds_behind: Option<f64>,
+    pub last_restorable_version: Option<i64>,
     pub running_backup: bool,
     pub running_backup_is_restorable: bool,
     pub range_bytes_written: i64,

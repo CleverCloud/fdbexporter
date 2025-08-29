@@ -110,9 +110,9 @@ impl StaticMetric<IntGaugeVec> for ClusterBackupTag {
             let metric = metrics.get(name).unwrap();
             let value: Option<i64> = match name {
                 "last_restorable_behind_seconds" => {
-                    Some(self.last_restorable_seconds_behind.ceil() as i64)
+                    self.last_restorable_seconds_behind.map(|v| v.ceil() as i64)
                 }
-                "last_restorable_version" => Some(self.last_restorable_version),
+                "last_restorable_version" => self.last_restorable_version,
                 "running_backup" => Some(self.running_backup as i64),
                 "running_backup_restorable" => Some(self.running_backup_is_restorable as i64),
                 "range_bytes_written" => Some(self.range_bytes_written),
