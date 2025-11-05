@@ -3,7 +3,7 @@ use prometheus::{register_int_counter, IntCounter, IntGauge};
 use std::collections::HashMap;
 
 use super::MetricsConvertible;
-use crate::fetcher::Error as FetcherError;
+use crate::fetcher::FetchError;
 
 pub mod client;
 pub mod cluster;
@@ -27,18 +27,30 @@ lazy_static! {
         "Number of parsing errors encountered",
     }
     .unwrap();
-    static ref P_FDB_EXPORTER_CMD_ERROR: IntCounter = register_int_counter!(
-        "fdb_exporter_cmd_error_count",
-        "Number of error running the command line"
+    static ref P_FDB_EXPORTER_FDB_ERROR: IntCounter = register_int_counter!(
+        "fdb_exporter_fdb_error_count",
+        "Number of FoundationDB errors"
+    )
+    .unwrap();
+    static ref P_FDB_EXPORTER_FDB_BINDING_ERROR: IntCounter = register_int_counter!(
+        "fdb_exporter_fdb_binding_error_count",
+        "Number of FoundationDB binding errors"
+    )
+    .unwrap();
+    static ref P_FDB_EXPORTER_STATUS_NOT_FOUND: IntCounter = register_int_counter!(
+        "fdb_exporter_status_not_found_count",
+        "Number of times the status key was not found"
     )
     .unwrap();
 }
 
-impl MetricsConvertible for FetcherError {
+impl MetricsConvertible for FetchError {
     fn to_metrics(&self, _: &[&str]) {
         match self {
-            FetcherError::Cmd(_) => P_FDB_EXPORTER_CMD_ERROR.inc(),
-            FetcherError::Parsing(_) => P_FDB_EXPORTER_PARSING_ERROR.inc(),
+            FetchError::Fdb(_) => P_FDB_EXPORTER_FDB_ERROR.inc(),
+            FetchError::FdbBinding(_) => P_FDB_EXPORTER_FDB_BINDING_ERROR.inc(),
+            FetchError::StatusNotFound => P_FDB_EXPORTER_STATUS_NOT_FOUND.inc(),
+            FetchError::Parsing(_) => P_FDB_EXPORTER_PARSING_ERROR.inc(),
         };
     }
 }

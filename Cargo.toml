@@ -8,19 +8,44 @@ keywords = ["foundationdb", "monitoring", "metrics", "exporter"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "fdbexporter"
+path = "src/lib.rs"
+
+[[bin]]
+name = "fdbexporter"
+path = "src/main.rs"
+required-features = ["binary"]
+
+[features]
+default = ["binary"]
+binary = [
+    "dep:tokio",
+    "dep:hyper",
+    "dep:hyper-util",
+    "dep:clap",
+    "dep:tracing-subscriber",
+    "dep:futures",
+    "dep:http-body-util",
+    "dep:bytes",
+]
+
 [dependencies]
+# Core library dependencies (always available)
 prometheus = "0.13.3"
-hyper = { version = "1.1.0", features = ["server", "http1"] }
-hyper-util = { version = "0.1", features = ["full"] }
-tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread", "signal", "time"] }
-lazy_static = "1.4.0"
-http-body-util = "0.1.0"
-bytes = "1.5.0"
 tracing = "0.1"
-tracing-subscriber = "0.3"
 anyhow = "^1.0.76"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["serde_derive", "std"]}
-futures = "0.3"
-clap = { version = "4.4.11", features = ["derive", "env"] }
 serde_path_to_error = "0.1"
+lazy_static = "1.4.0"
+
+# Binary-specific dependencies (only with "binary" feature)
+tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread", "signal", "time"], optional = true }
+hyper = { version = "1.1.0", features = ["server", "http1"], optional = true }
+hyper-util = { version = "0.1", features = ["full"], optional = true }
+clap = { version = "4.4.11", features = ["derive", "env"], optional = true }
+tracing-subscriber = { version = "0.3", optional = true }
+futures = { version = "0.3", optional = true }
+http-body-util = { version = "0.1.0", optional = true }
+bytes = { version = "1.5.0", optional = true }

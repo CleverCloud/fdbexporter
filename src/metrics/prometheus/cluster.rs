@@ -69,8 +69,10 @@ impl MetricsConvertible for ClusterStatus {
             latency_probe.to_metrics(&[]);
         }
 
-        if let Some(backup) = &self.layers.backup {
-            backup.to_metrics(&[]);
+        if let Some(layers) = &self.layers {
+            if let Some(backup) = &layers.backup {
+                backup.to_metrics(&[]);
+            }
         }
 
         if let Some(wiggle) = &self.storage_wiggler {
@@ -79,6 +81,8 @@ impl MetricsConvertible for ClusterStatus {
 
         P_CLUSTER_GENERATION_COUNT.set(self.generation);
 
-        self.qos.to_metrics(&[]);
+        if let Some(qos) = &self.qos {
+            qos.to_metrics(&[]);
+        }
     }
 }

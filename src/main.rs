@@ -1,13 +1,11 @@
 use bytes::Bytes;
 use clap::Parser;
-use fetcher::fetch_cluster_status;
-use futures::join;
+use fdbexporter::{fetch_cluster_status, process_metrics, FetchError, MetricsConvertible};
 use http_body_util::Full;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
-use metrics::{process_metrics, MetricsConvertible};
 use prometheus::{Encoder, TextEncoder};
 
 use std::convert::Infallible;
@@ -20,10 +18,6 @@ use tokio::{
     time::{sleep, Duration},
 };
 use tracing::{error, info};
-
-mod fetcher;
-mod metrics;
-mod status_models;
 
 async fn metrics(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Bytes>>, Infallible> {
     let encoder = TextEncoder::new();
@@ -51,22 +45,21 @@ async fn run_http_server(config: &CommandArgs) -> Result<(), anyhow::Error> {
     }
 }
 
-/// Run a loop which will fetch regularly fdbcli status, to fetch current state
+/// Run a loop which will fetch regularly FDB status from the system key, to fetch current state
 /// of the cluster.
 async fn run_status_fetcher(config: &CommandArgs) -> Result<(), anyhow::Error> {
-    let mut opts = ["--exec", "status json"].to_vec();
+    let cluster_path = config.cluster.as_deref();
 
-    if let Some(cluster) = &config.cluster {
-        opts.push("-C");
-        // Fairly safe as we already parse it to a valid PathBuf in config
-        opts.push(cluster.to_str().unwrap());
-    }
-    let cmd = String::from("fdbcli");
     loop {
-        match fetch_cluster_status(&cmd, &opts) {
+        let status = fetch_cluster_status(cluster_path).await;
+
+        match status {
             Ok(status) => process_metrics(status),
+            Err(FetchError::FdbBinding(e)) => {
+                return Err(e.into());
+            },
             Err(e) => e.to_metrics(&[]),
-        }
+        };
         sleep(config.delay_sec).await;
     }
 }
@@ -96,17 +89,28 @@ fn parse_duration(arg: &str) -> Result<Duration, ParseIntError> {
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     tracing_subscriber::fmt::init();
+
+    // Initialize FoundationDB client
+    // Safe because we drop it before the program exits
+    let _fdb_network = unsafe { foundationdb::boot() };
+
     let cli = CommandArgs::parse();
 
-    let (server_rs, fetcher_rs) = join!(run_http_server(&cli), run_status_fetcher(&cli));
+    tokio::select! {
+        server = run_http_server(&cli) => {
+            if let Err(err) = server {
+                error!("HTTP server thread failed, {:?}", err);
+            }
+        },
+        fetcher = run_status_fetcher(&cli) => {
+            if let Err(err) = fetcher {
+                error!("HTTP fetcher thread failed, {:?}", err);
+            }
+        },
+    };
 
-    if let Err(err) = server_rs {
-        error!("HTTP server thread failed, {:?}", err);
-    }
-
-    if let Err(err) = fetcher_rs {
-        error!("HTTP fetcher thread failed, {:?}", err);
-    }
+    // Clean shutdown of FDB network
+    drop(_fdb_network);
 
     Ok(())
 }
