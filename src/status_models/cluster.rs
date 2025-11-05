@@ -17,12 +17,14 @@ pub struct ClusterStatus {
     #[serde(default)]
     pub machines: HashMap<MachineId, ClusterMachine>,
     pub data: Option<ClusterData>,
+    #[serde(default)]
     pub processes: HashMap<ProcessId, ClusterProcess>,
     pub latency_probe: Option<ClusterLatencyProbe>,
+    #[serde(default)]
     pub generation: i64,
-    pub qos: ClusterQos,
+    pub qos: Option<ClusterQos>,
     pub storage_wiggler: Option<ClusterStorageWiggle>,
-    pub layers: ClusterStatusLayers,
+    pub layers: Option<ClusterStatusLayers>,
 }
 
 /// jq: .cluster.layers
@@ -98,12 +100,12 @@ mod tests {
                 processes: HashMap::new(),
                 latency_probe: None,
                 generation: 1,
-                qos: ClusterQos::default(),
-                layers: super::ClusterStatusLayers {
+                qos: Some(ClusterQos::default()),
+                layers: Some(super::ClusterStatusLayers {
                     valid: true,
                     error: None,
                     backup: None,
-                },
+                }),
                 storage_wiggler: None,
             }
         }

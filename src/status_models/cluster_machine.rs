@@ -30,9 +30,9 @@ pub struct ClusterMachine {
 /// jq: .cluster.machines[].memory
 #[derive(Deserialize)]
 pub struct ClusterMachineMemory {
-    pub free_bytes: u64,
-    pub committed_bytes: u64,
-    pub total_bytes: u64,
+    pub free_bytes: i64,
+    pub committed_bytes: i64,
+    pub total_bytes: i64,
 }
 
 /// jq: .cluster.machines[].network
