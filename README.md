@@ -9,6 +9,11 @@ Metrics this exporter exposes are available in **[METRICS.md](./METRICS.md)**.
 *Not all metrics from status are yet available, but the ones we use are available.
 If you need more metrics, feel free to contribute!*
 
+## Migration Notice
+
+**⚠️ Breaking Change in v2.1.0**: The library now uses the native FoundationDB Rust client instead of `fdbcli`. If you're upgrading from an earlier version, please be aware you'll need
+to have FoundationDB client lib installed on your system.
+
 ## Getting started
 
 ### Docker
@@ -18,8 +23,8 @@ the container. You can start with [a sample cluster](#running-with-a-sample-foun
 to try the exporter.*
 
 ```
-# Pull exporter version 2.0.1 for FoundtionDB version 7.3.63
-docker pull clevercloud/fdbexporter:2.0.0-7.3.63
+# Pull exporter version 2.1.0 for FoundtionDB version 7.3.63
+docker pull clevercloud/fdbexporter:2.1.0-7.3.63
 # Environment variables:
 #   FDB_COORDINATOR: DNS name of the coordinator node
 #   FDB_COORDINATOR_PORT: Port of the coordinator node process
@@ -72,12 +77,32 @@ curl localhost:9090
 
 Rust `1.74.0` at least is required
 
-```
+### Building with Different FoundationDB Versions
+
+The exporter supports multiple FoundationDB versions via Cargo features. By default, it builds for FoundationDB 7.3.
+
+```bash
+# Build with default (FoundationDB 7.3)
 cargo build --release
+
+# Build for FoundationDB 7.1
+cargo build --release --no-default-features --features "binary,fdb-7_1"
+
+# Build for FoundationDB 7.3 explicitly
+cargo build --release --no-default-features --features "binary,fdb-7_3"
+
+# Build library only for FoundationDB 7.1
+cargo build --lib --no-default-features --features fdb-7_1
+
+# Build library only for FoundationDB 7.3
+cargo build --lib --no-default-features --features fdb-7_3
+
+# Run the exporter
 ./target/release/fdbexporter
 ```
+
+**Note**: The `fdb-7_1` and `fdb-7_3` features are mutually exclusive. You must select only one version at build time.
 
 ## Contributing
 
 We welcome contributions, please see [CONTRIBUTING.md](./CONTRIBUTING.md) for more specifics.
-
