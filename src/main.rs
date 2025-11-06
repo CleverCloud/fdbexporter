@@ -57,7 +57,7 @@ async fn run_status_fetcher(config: &CommandArgs) -> Result<(), anyhow::Error> {
             Ok(status) => process_metrics(status),
             Err(FetchError::FdbBinding(e)) => {
                 return Err(e.into());
-            },
+            }
             Err(e) => e.to_metrics(&[]),
         };
         sleep(config.delay_sec).await;

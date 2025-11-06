@@ -68,13 +68,13 @@ impl MetricsConvertible for ClusterMachine {
 
         P_CLUSTER_MACHINE_MEMORY_COMMITTED_BYTES_GAUGE
             .with_label_values(labels)
-            .set(self.memory.committed_bytes as i64);
+            .set(self.memory.committed_bytes);
         P_CLUSTER_MACHINE_MEMORY_FREE_BYTES_GAUGE
             .with_label_values(labels)
-            .set(self.memory.free_bytes as i64);
+            .set(self.memory.free_bytes);
         P_CLUSTER_MACHINE_MEMORY_TOTAL_BYTES_GAUGE
             .with_label_values(labels)
-            .set(self.memory.total_bytes as i64);
+            .set(self.memory.total_bytes);
 
         P_CLUSTER_MACHINE_NETWORK_MEGABITS_SENT_GAUGE
             .with_label_values(labels)
