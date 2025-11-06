@@ -15,7 +15,7 @@ pub struct ClusterData {
 }
 
 // jq: .cluster.data.state.name
-#[derive(Deserialize, Copy, Clone)]
+#[derive(Deserialize, Copy, Clone, Default)]
 pub enum ClusterDataStateName {
     #[serde(rename = "initializing")]
     Initializing,
@@ -36,13 +36,8 @@ pub enum ClusterDataStateName {
     #[serde(rename = "healthy")]
     Healthy,
     #[serde(rename = "unknown")]
+    #[default]
     Unknown,
-}
-
-impl Default for ClusterDataStateName {
-    fn default() -> Self {
-        Self::Unknown
-    }
 }
 
 /// jq: .cluster.data.state
