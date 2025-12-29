@@ -24,8 +24,8 @@ the container. You can start with [a sample cluster](#running-with-a-sample-foun
 to try the exporter.*
 
 ```
-# Pull exporter version 2.1.1 for FoundtionDB version 7.3.69
-docker pull clevercloud/fdbexporter:2.1.1-7.3.69
+# Pull exporter version 2.1.2 for FoundtionDB version 7.3.69
+docker pull clevercloud/fdbexporter:2.1.2-7.3.69
 # Environment variables:
 #   FDB_COORDINATOR: DNS name of the coordinator node
 #   FDB_COORDINATOR_PORT: Port of the coordinator node process
@@ -34,7 +34,7 @@ docker run \
   -e FDB_NETWORKING_MODE=container \
   -e FDB_COORDINATOR=coordinator \
   -e FDB_COORDINATOR_PORT=4500 \
-  clevercloud/fdbexporter:latest-7.3.69
+  clevercloud/fdbexporter:2.1.2-7.3.69
 ```
 
 The exporter images are tagged based on both the exporter version and on

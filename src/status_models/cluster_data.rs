@@ -32,9 +32,11 @@ pub enum ClusterDataStateName {
     #[serde(rename = "healthy_removing_server")]
     HealthyRemovingServer,
     #[serde(rename = "healthy_rebalancing")]
-    HealthyRebalacing,
+    HealthyRebalancing,
     #[serde(rename = "healthy")]
     Healthy,
+    #[serde(rename = "healthy_perpetual_wiggle")]
+    HealthyPerpetualWiggle,
     #[serde(rename = "unknown")]
     #[default]
     Unknown,
