@@ -1,7 +1,8 @@
 use core::fmt;
-use std::net::SocketAddrV4;
 
 use serde::Deserialize;
+
+use crate::status_models::address::Address;
 
 use super::cluster_machine::MachineId;
 use super::cluster_process_disk::ClusterProcessDisk;
@@ -16,7 +17,7 @@ pub struct ProcessId(pub String);
 /// jq: .cluster.processes[]
 #[derive(Deserialize)]
 pub struct ClusterProcess {
-    pub address: SocketAddrV4,
+    pub address: Address,
     pub class_source: Option<ClusterClassSource>,
     pub class_type: Option<ClusterClassType>,
     pub version: Option<String>,

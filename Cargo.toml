@@ -41,6 +41,7 @@ serde = { version = "1.0", features = ["serde_derive", "std"]}
 serde_path_to_error = "0.1"
 lazy_static = "1.4.0"
 foundationdb = { version = "0.10.0", features = ["embedded-fdb-include"], default-features = false }
+either = { version = "1.15.0", features = ["serde"] }
 
 # Binary-specific dependencies (only with "binary" feature)
 tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread", "signal", "time"], optional = true }

@@ -61,11 +61,10 @@ mod tests {
         net::{Ipv4Addr, SocketAddrV4},
     };
 
+    use either::Left;
+
     use crate::status_models::{
-        cluster_data::ClusterData,
-        cluster_process::{ClusterClassType, ClusterProcess, ProcessId},
-        cluster_process_role::ClusterProcessRole,
-        cluster_qos::ClusterQos,
+        address::Address, cluster_data::ClusterData, cluster_process::{ClusterClassType, ClusterProcess, ProcessId}, cluster_process_role::ClusterProcessRole, cluster_qos::ClusterQos
     };
 
     use super::ClusterStatus;
@@ -73,7 +72,10 @@ mod tests {
     impl Default for ClusterProcess {
         fn default() -> Self {
             ClusterProcess {
-                address: SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 65535),
+                address: Address {
+                    address: Left(SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 65535)),
+                    tls: false
+                },
                 class_source: None,
                 class_type: None,
                 version: None,
