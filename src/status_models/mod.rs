@@ -1,5 +1,6 @@
 use serde::Deserialize;
 
+pub mod address;
 pub mod client;
 pub mod cluster;
 pub mod cluster_backup;
