@@ -4,7 +4,7 @@ use fdbexporter::{fetch_cluster_status, process_metrics, FetchError, MetricsConv
 use http_body_util::Full;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
-use hyper::{Request, Response};
+use hyper::{Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
 use prometheus::{Encoder, TextEncoder};
 
@@ -19,7 +19,21 @@ use tokio::{
 };
 use tracing::{error, info};
 
-async fn metrics(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Bytes>>, Infallible> {
+/// Health check endpoint handler
+/// Returns 200 OK with a simple JSON response
+async fn health() -> Result<Response<Full<Bytes>>, Infallible> {
+    let body = r#"{"status":"ok"}"#;
+    let response = Response::builder()
+        .status(StatusCode::OK)
+        .header("Content-Type", "application/json")
+        .body(Full::new(Bytes::from(body)))
+        .unwrap();
+    Ok(response)
+}
+
+/// Metrics endpoint handler
+/// Returns Prometheus-formatted metrics
+async fn metrics() -> Result<Response<Full<Bytes>>, Infallible> {
     let encoder = TextEncoder::new();
     let metric_families = prometheus::gather();
     let mut buffer = vec![];
@@ -27,16 +41,38 @@ async fn metrics(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Byt
     Ok(Response::new(Full::new(buffer.into())))
 }
 
+/// Not found handler
+async fn not_found() -> Result<Response<Full<Bytes>>, Infallible> {
+    let response = Response::builder()
+        .status(StatusCode::NOT_FOUND)
+        .body(Full::new(Bytes::from("Not Found")))
+        .unwrap();
+    Ok(response)
+}
+
+/// Request router - routes requests to appropriate handlers based on path
+async fn router(req: Request<impl hyper::body::Body>) -> Result<Response<Full<Bytes>>, Infallible> {
+    match (req.method(), req.uri().path()) {
+        (&Method::GET, "/health") => health().await,
+        (&Method::GET, "/metrics") => metrics().await,
+        // Keep backward compatibility: root path returns metrics
+        (&Method::GET, "/") => metrics().await,
+        _ => not_found().await,
+    }
+}
+
 async fn run_http_server(config: &CommandArgs) -> Result<(), anyhow::Error> {
     let addr: SocketAddr = ([0, 0, 0, 0], config.port).into();
     let listener = TcpListener::bind(addr).await?;
     info!("Listening on http://{}", addr);
+    info!("  /health  - Health check endpoint");
+    info!("  /metrics - Prometheus metrics endpoint");
     loop {
         let (tcp, _) = listener.accept().await?;
         let io = TokioIo::new(tcp);
         tokio::task::spawn(async move {
             if let Err(err) = http1::Builder::new()
-                .serve_connection(io, service_fn(metrics))
+                .serve_connection(io, service_fn(router))
                 .await
             {
                 error!("Error serving connection: {:?}", err);
