@@ -1,5 +1,6 @@
 use serde::Deserialize;
-use std::net::SocketAddrV4;
+
+use super::network_address::NetworkAddress;
 
 /// jq: .client
 #[derive(Deserialize)]
@@ -45,7 +46,8 @@ pub struct ClientCoordinators {
 /// jq: .client.coordinators.coordinators
 #[derive(Deserialize)]
 pub struct ClientCoordinator {
-    pub address: SocketAddrV4,
+    pub address: NetworkAddress,
     pub protocol: Option<String>,
     pub reachable: bool,
 }
+

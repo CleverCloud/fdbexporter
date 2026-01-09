@@ -1,15 +1,14 @@
-use std::net::SocketAddrV4;
-
 use serde::Deserialize;
 
 use super::cluster_process::ProcessId;
+use super::network_address::NetworkAddress;
 
 /// jq: .cluster.storage_wiggle
 #[derive(Deserialize)]
 pub struct ClusterStorageWiggle {
     pub primary: Option<ClusterStoragePrimaryWiggle>,
 
-    pub wiggle_server_addresses: Vec<SocketAddrV4>,
+    pub wiggle_server_addresses: Vec<NetworkAddress>,
     pub wiggle_server_ids: Vec<ProcessId>,
 }
 

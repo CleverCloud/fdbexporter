@@ -1,5 +1,4 @@
 use core::fmt;
-use std::net::SocketAddrV4;
 
 use serde::Deserialize;
 
@@ -8,6 +7,7 @@ use super::cluster_process_disk::ClusterProcessDisk;
 use super::cluster_process_memory::ClusterProcessMemory;
 use super::cluster_process_network::ClusterProcessNetwork;
 use super::cluster_process_role::ClusterProcessRole;
+use super::network_address::NetworkAddress;
 
 /// A hash corresponding to the process
 #[derive(Deserialize, PartialEq, Eq, Hash)]
@@ -16,7 +16,7 @@ pub struct ProcessId(pub String);
 /// jq: .cluster.processes[]
 #[derive(Deserialize)]
 pub struct ClusterProcess {
-    pub address: SocketAddrV4,
+    pub address: NetworkAddress,
     pub class_source: Option<ClusterClassSource>,
     pub class_type: Option<ClusterClassType>,
     pub version: Option<String>,

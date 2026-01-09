@@ -56,16 +56,14 @@ impl ClusterStatus {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        collections::HashMap,
-        net::{Ipv4Addr, SocketAddrV4},
-    };
+    use std::collections::HashMap;
 
     use crate::status_models::{
         cluster_data::ClusterData,
         cluster_process::{ClusterClassType, ClusterProcess, ProcessId},
         cluster_process_role::ClusterProcessRole,
         cluster_qos::ClusterQos,
+        network_address::NetworkAddress,
     };
 
     use super::ClusterStatus;
@@ -73,7 +71,7 @@ mod tests {
     impl Default for ClusterProcess {
         fn default() -> Self {
             ClusterProcess {
-                address: SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), 65535),
+                address: "127.0.0.1:65535".parse::<NetworkAddress>().unwrap(),
                 class_source: None,
                 class_type: None,
                 version: None,

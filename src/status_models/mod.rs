@@ -13,6 +13,7 @@ pub mod cluster_process_network;
 pub mod cluster_process_role;
 pub mod cluster_qos;
 pub mod cluster_wiggle;
+pub mod network_address;
 
 #[derive(Deserialize)]
 pub struct Status {
