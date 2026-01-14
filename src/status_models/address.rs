@@ -68,11 +68,11 @@ impl<'de> Deserialize<'de> for FdbProcessAddress {
 
 impl fmt::Display for FdbProcessAddress {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let host_port = write!(f, "{}:{}", self.host, self.port);
-        if host_port.is_err() || !self.tls {
-            return host_port;
-        }
-        write!(f, ":tls")
+          write!(f, "{}:{}", self.host, self.port)?;
+          if self.tls {
+              write!(f, ":tls")?;
+          }
+          Ok(())
     }
 }
 
