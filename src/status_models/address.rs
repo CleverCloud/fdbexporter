@@ -1,6 +1,6 @@
 use serde::{de, Deserialize};
 
-use std::{fmt, u16};
+use std::{fmt};
 use url::Host;
 
 #[derive(Debug)]
@@ -51,7 +51,7 @@ impl FdbProcessAddress {
         let host_str = &host_port[..port_pos];
         let host = url::Host::parse(host_str).map_err(|_| AddressError::ParsingHost)?;
 
-        return Ok(FdbProcessAddress::new(host, port, tls));
+        Ok(FdbProcessAddress::new(host, port, tls))
     }
 }
 
@@ -61,7 +61,7 @@ impl<'de> Deserialize<'de> for FdbProcessAddress {
         D: serde::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        FdbProcessAddress::parse(s.as_str()).map_err(|e| de::Error::custom(e))
+        FdbProcessAddress::parse(s.as_str()).map_err(de::Error::custom)
     }
 }
 
