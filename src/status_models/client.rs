@@ -1,5 +1,6 @@
 use serde::Deserialize;
-use std::net::SocketAddrV4;
+
+use crate::status_models::address::FdbProcessAddress;
 
 /// jq: .client
 #[derive(Deserialize)]
@@ -28,7 +29,7 @@ pub struct ClientMessage {
     pub description: String,
 }
 
-/// .jq: .client.database_status
+/// jq: .client.database_status
 #[derive(Deserialize)]
 pub struct ClientDatabaseStatus {
     pub available: bool,
@@ -42,10 +43,10 @@ pub struct ClientCoordinators {
     pub quorum_reachable: bool,
 }
 
-/// jq: .client.coordinators.coordinators
+/// jq: .client.coordinators.coordinator
 #[derive(Deserialize)]
 pub struct ClientCoordinator {
-    pub address: SocketAddrV4,
+    pub address: FdbProcessAddress,
     pub protocol: Option<String>,
     pub reachable: bool,
 }
