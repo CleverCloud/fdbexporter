@@ -61,18 +61,17 @@ impl<'de> Deserialize<'de> for FdbProcessAddress {
         D: serde::Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        FdbProcessAddress::parse(s.as_str())
-            .map_err(|e| de::Error::custom(e))
+        FdbProcessAddress::parse(s.as_str()).map_err(|e| de::Error::custom(e))
     }
 }
 
 impl fmt::Display for FdbProcessAddress {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-          write!(f, "{}:{}", self.host, self.port)?;
-          if self.tls {
-              write!(f, ":tls")?;
-          }
-          Ok(())
+        write!(f, "{}:{}", self.host, self.port)?;
+        if self.tls {
+            write!(f, ":tls")?;
+        }
+        Ok(())
     }
 }
 
