@@ -1,6 +1,6 @@
 use serde::{de, Deserialize};
 
-use std::{fmt};
+use std::fmt;
 use url::Host;
 
 #[derive(Debug)]
