@@ -9,7 +9,7 @@ use hyper_util::rt::TokioIo;
 use prometheus::{Encoder, TextEncoder};
 
 use std::convert::Infallible;
-use std::net::SocketAddr;
+use std::net::{IpAddr, SocketAddr};
 use std::num::ParseIntError;
 use std::path::PathBuf;
 
@@ -28,7 +28,7 @@ async fn metrics(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Byt
 }
 
 async fn run_http_server(config: &CommandArgs) -> Result<(), anyhow::Error> {
-    let addr: SocketAddr = ([0, 0, 0, 0], config.port).into();
+    let addr: SocketAddr = (config.addr, config.port).into();
     let listener = TcpListener::bind(addr).await?;
     info!("Listening on http://{}", addr);
     loop {
@@ -71,6 +71,10 @@ struct CommandArgs {
     /// Listening port of the web server
     #[arg(short, long, default_value_t = 9090, env = "FDB_EXPORTER_PORT")]
     port: u16,
+
+    /// Listen address of the web server, can be IPv4 or IPv6
+    #[arg(short, long, default_value = "0.0.0.0", env = "FDB_EXPORTER_ADDR")]
+    addr: IpAddr,
 
     /// Location of fdb.cluster file
     #[arg(short, long, env = "FDB_CLUSTER_FILE")]
@@ -117,7 +121,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
+    use std::{net::Ipv4Addr, time::Duration};
 
     use crate::CommandArgs;
 
@@ -125,6 +129,7 @@ mod tests {
         fn default() -> Self {
             CommandArgs {
                 port: 9090,
+                addr: std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
                 cluster: None,
                 delay_sec: Duration::from_secs(1),
             }

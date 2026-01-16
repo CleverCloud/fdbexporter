@@ -55,6 +55,7 @@ Usage: fdbexporter [OPTIONS]
 
 Options:
   -p, --port <PORT>            Listening port of the web server [env: FDB_EXPORTER_PORT=] [default: 9090]
+  -a, --addr                   Listening IPv4/IPv6 address of the web server [env: FDB_EXPORTER_ADDR=] [default: 0.0.0.0]
   -c, --cluster <CLUSTER>      Location of fdb.cluster file [env: FDB_CLUSTER_FILE=]
   -d, --delay-sec <DELAY_SEC>  Delay in seconds between two update of the status & metrics [env: FDB_EXPORTER_DELAY=] [default: 15]
   -h, --help                   Print help
