@@ -1,7 +1,7 @@
-ARG FDB_VERSION=7.3.43
-ARG RUST_VERSION=1.91.0
+ARG FDB_VERSION=7.3.69
+ARG RUST_VERSION=1.93.0
 # Build Stage
-FROM rust:${RUST_VERSION}-bullseye AS builder
+FROM rust:${RUST_VERSION}-trixie AS builder
 
 ARG FDB_VERSION
 
@@ -29,11 +29,11 @@ RUN if echo "${FDB_VERSION}" | grep -q "^7\.1\."; then \
     cargo build --release ${CARGO_FEATURES}
 
 # Final Stage
-FROM debian:bullseye
+FROM debian:trixie-slim
 ARG FDB_VERSION
 WORKDIR /app
 
-RUN apt update && apt install -y wget curl dnsutils openssh-client
+RUN apt update && apt install -y wget curl dnsutils openssh-client && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Download foundationdb client
 RUN wget -q https://github.com/apple/foundationdb/releases/download/${FDB_VERSION}/foundationdb-clients_${FDB_VERSION}-1_amd64.deb \
