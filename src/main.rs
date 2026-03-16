@@ -51,7 +51,7 @@ async fn run_status_fetcher(config: &CommandArgs) -> Result<(), anyhow::Error> {
     let cluster_path = config.cluster.as_deref();
 
     loop {
-        let status = fetch_cluster_status(cluster_path).await;
+        let status = fetch_cluster_status(cluster_path, config.fdb_timeout).await;
 
         match status {
             Ok(status) => process_metrics(status),
@@ -83,11 +83,33 @@ struct CommandArgs {
     /// Delay in seconds between two update of the status & metrics
     #[arg(short, long, env = "FDB_EXPORTER_DELAY", value_parser = parse_duration, default_value = "15")]
     delay_sec: Duration,
+
+    /// Timeout in seconds for FoundationDB status fetch operations
+    #[arg(short = 't', long, env = "FDB_TIMEOUT", value_parser = parse_fdb_timeout, default_value = "60")]
+    fdb_timeout: Duration,
 }
 
 fn parse_duration(arg: &str) -> Result<Duration, ParseIntError> {
     let seconds = arg.parse()?;
     Ok(Duration::from_secs(seconds))
+}
+
+fn parse_fdb_timeout(arg: &str) -> Result<Duration, String> {
+    let seconds: u64 = arg
+        .parse()
+        .map_err(|e| format!("Invalid timeout value: {}", e))?;
+
+    if seconds == 0 {
+        return Err("Timeout must be greater than 0".to_string());
+    }
+
+    let duration = Duration::from_secs(seconds);
+    let _millis: i32 = duration
+        .as_millis()
+        .try_into()
+        .map_err(|_| "Timeout value too large to fit in i32 milliseconds".to_string())?;
+
+    Ok(duration)
 }
 
 #[tokio::main]
@@ -132,6 +154,7 @@ mod tests {
                 addr: std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
                 cluster: None,
                 delay_sec: Duration::from_secs(1),
+                fdb_timeout: Duration::from_secs(60),
             }
         }
     }
