@@ -54,12 +54,13 @@ A monitoring tool for FoundationDB with exporting capabilities for prometheus
 Usage: fdbexporter [OPTIONS]
 
 Options:
-  -p, --port <PORT>            Listening port of the web server [env: FDB_EXPORTER_PORT=] [default: 9090]
-  -a, --addr                   Listening IPv4/IPv6 address of the web server [env: FDB_EXPORTER_ADDR=] [default: 0.0.0.0]
-  -c, --cluster <CLUSTER>      Location of fdb.cluster file [env: FDB_CLUSTER_FILE=]
-  -d, --delay-sec <DELAY_SEC>  Delay in seconds between two update of the status & metrics [env: FDB_EXPORTER_DELAY=] [default: 15]
-  -h, --help                   Print help
-  -V, --version                Print version
+  -p, --port <PORT>                Listening port of the web server [env: FDB_EXPORTER_PORT=] [default: 9090]
+  -a, --addr <ADDR>                Listening IPv4/IPv6 address of the web server [env: FDB_EXPORTER_ADDR=] [default: 0.0.0.0]
+  -c, --cluster <CLUSTER>          Location of fdb.cluster file [env: FDB_CLUSTER_FILE=]
+  -d, --delay-sec <DELAY_SEC>      Delay in seconds between two update of the status & metrics [env: FDB_EXPORTER_DELAY=] [default: 15]
+  -t, --fdb-timeout <FDB_TIMEOUT>  Timeout in seconds for FoundationDB status fetch operations [env: FDB_TIMEOUT=] [default: 60]
+  -h, --help                       Print help
+  -V, --version                    Print version
 ```
 
 ### Running with a sample FoundationDB Cluster

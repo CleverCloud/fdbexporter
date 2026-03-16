@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 use foundationdb::{options::TransactionOption, Database, FdbBindingError, FdbError};
 use tracing::error;
@@ -16,6 +16,8 @@ pub enum FetchError {
     FdbBinding(FdbBindingError),
     /// Error when the status key is not found
     StatusNotFound,
+    /// Error when the requested timeout is too large
+    TimeoutTooLarge(u128),
 }
 
 impl std::fmt::Display for FetchError {
@@ -25,6 +27,14 @@ impl std::fmt::Display for FetchError {
             FetchError::Fdb(e) => write!(f, "FoundationDB error: {}", e),
             FetchError::FdbBinding(e) => write!(f, "FoundationDB binding error: {}", e),
             FetchError::StatusNotFound => write!(f, "Status key not found in FoundationDB"),
+            FetchError::TimeoutTooLarge(ms) => {
+                write!(
+                    f,
+                    "Timeout value {}ms exceeds maximum of {}ms (i32::MAX)",
+                    ms,
+                    i32::MAX
+                )
+            }
         }
     }
 }
@@ -36,6 +46,7 @@ impl std::error::Error for FetchError {
             FetchError::Fdb(e) => Some(e),
             FetchError::FdbBinding(e) => Some(e),
             FetchError::StatusNotFound => None,
+            FetchError::TimeoutTooLarge(_) => None,
         }
     }
 }
@@ -57,6 +68,7 @@ impl From<FdbBindingError> for FetchError {
 /// # Arguments
 ///
 /// * `cluster_file` - Optional path to the cluster file. If None, uses the default cluster file.
+/// * `timeout_duration` - Timeout to use when querying for status.
 ///
 /// # Returns
 ///
@@ -67,18 +79,24 @@ impl From<FdbBindingError> for FetchError {
 ///
 /// ```no_run
 /// use fdbexporter::fetch_cluster_status;
-/// use std::path::Path;
+/// use std::{path::Path, time::Duration};
 ///
 /// # async fn example() -> Result<(), fdbexporter::FetchError> {
+///
+/// let timeout = Duration::new(15, 0);
+///
 /// // Use default cluster file
-/// let status = fetch_cluster_status(None).await?;
+/// let status = fetch_cluster_status(None, timeout).await?;
 ///
 /// // Use custom cluster file
-/// let status = fetch_cluster_status(Some(Path::new("/etc/foundationdb/fdb.cluster"))).await?;
+/// let status = fetch_cluster_status(Some(Path::new("/etc/foundationdb/fdb.cluster")), timeout).await?;
 /// # Ok(())
 /// # }
 /// ```
-pub async fn fetch_cluster_status(cluster_file: Option<&Path>) -> Result<Status, FetchError> {
+pub async fn fetch_cluster_status(
+    cluster_file: Option<&Path>,
+    timeout_duration: Duration,
+) -> Result<Status, FetchError> {
     let db = if let Some(path) = cluster_file {
         let path_str = path.to_str().ok_or_else(|| {
             // Create a custom error for invalid path
@@ -92,11 +110,17 @@ pub async fn fetch_cluster_status(cluster_file: Option<&Path>) -> Result<Status,
         Database::default()?
     };
 
+    let timeout_millis = timeout_duration
+        .as_millis()
+        .try_into()
+        .map_err(|_| FetchError::TimeoutTooLarge(timeout_duration.as_millis()))?;
+
     // Read the status JSON from the system key
     let status_json = db
         .run(|trx, _maybe_committed| async move {
             // Set the option to read system keys
             trx.set_option(TransactionOption::ReadSystemKeys)?;
+            trx.set_option(TransactionOption::Timeout(timeout_millis))?;
 
             // The status JSON is stored at the special key \xff\xff/status/json
             let status_key = b"\xff\xff/status/json";

@@ -19,20 +19,22 @@
 //!
 //! ```no_run
 //! use fdbexporter::{fetch_cluster_status, process_metrics};
-//! use std::path::Path;
+//! use std::{path::Path, time::Duration};
 //!
 //! # async fn example() -> Result<(), Box<dyn std::error::Error>> {
 //! // Initialize FoundationDB client (once per process)
 //! let _guard = unsafe { foundationdb::boot() };
 //!
+//! let timeout = Duration::new(15, 0);
+//!
 //! // Fetch status using default cluster file
-//! match fetch_cluster_status(None).await {
+//! match fetch_cluster_status(None, timeout).await {
 //!     Ok(status) => process_metrics(status),
 //!     Err(e) => eprintln!("Failed to fetch status: {:?}", e),
 //! }
 //!
 //! // Or use a custom cluster file
-//! match fetch_cluster_status(Some(Path::new("/etc/foundationdb/fdb.cluster"))).await {
+//! match fetch_cluster_status(Some(Path::new("/etc/foundationdb/fdb.cluster")), timeout).await {
 //!     Ok(status) => process_metrics(status),
 //!     Err(e) => eprintln!("Failed to fetch status: {:?}", e),
 //! }

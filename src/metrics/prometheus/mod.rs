@@ -51,6 +51,7 @@ impl MetricsConvertible for FetchError {
             FetchError::FdbBinding(_) => P_FDB_EXPORTER_FDB_BINDING_ERROR.inc(),
             FetchError::StatusNotFound => P_FDB_EXPORTER_STATUS_NOT_FOUND.inc(),
             FetchError::Parsing(_) => P_FDB_EXPORTER_PARSING_ERROR.inc(),
+            FetchError::TimeoutTooLarge(_) => (),
         };
     }
 }
