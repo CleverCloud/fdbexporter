@@ -4,6 +4,7 @@ use fdbexporter::{fetch_cluster_status, process_metrics, FetchError, MetricsConv
 use http_body_util::Full;
 use hyper::server::conn::http1;
 use hyper::service::service_fn;
+use hyper::header::CONTENT_TYPE;
 use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use prometheus::{Encoder, TextEncoder};
@@ -24,7 +25,11 @@ async fn metrics(_: Request<impl hyper::body::Body>) -> Result<Response<Full<Byt
     let metric_families = prometheus::gather();
     let mut buffer = vec![];
     encoder.encode(&metric_families, &mut buffer).unwrap();
-    Ok(Response::new(Full::new(buffer.into())))
+    let response = Response::builder()
+        .header(CONTENT_TYPE, encoder.format_type())
+        .body(Full::new(buffer.into()))
+        .expect("static header value is valid");
+    Ok(response)
 }
 
 async fn run_http_server(config: &CommandArgs) -> Result<(), anyhow::Error> {
