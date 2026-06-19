@@ -18,7 +18,7 @@ path = "src/main.rs"
 required-features = ["binary"]
 
 [features]
-default = ["binary", "fdb-7_3"]
+default = ["binary", "fdb-7_4"]
 binary = [
     "dep:tokio",
     "dep:hyper",
@@ -30,6 +30,7 @@ binary = [
 ]
 fdb-7_1 = ["foundationdb/fdb-7_1"]
 fdb-7_3 = ["foundationdb/fdb-7_3"]
+fdb-7_4 = ["foundationdb/fdb-7_4"]
 
 [dependencies]
 # Core library dependencies (always available)
