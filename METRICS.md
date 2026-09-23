@@ -1,12 +1,22 @@
 # Metrics exposed
 
-## Process health 
+## Process health
 
 | Name | Description |
 | ---- | ----------- |
-| `fdb_client_timestamp` | Timestamp of last successful run of `fdbcli` |
-| `fdb_exporter_parsing_error_count` | Number of failed parsing for the current process lifetime |
-| `fdb_exporter_cmd_error_count` | Number of failed run of `fdbcli` |
+| `fdb_client_timestamp` | Client timestamp (`.client.timestamp` of `status json`) of the last status successfully fetched and parsed |
+| `fdb_exporter_parsing_error_count` | Number of parsing errors: a `status json` which could not be deserialized into the models |
+| `fdb_exporter_status_not_found_count` | Number of times the status key (`\xff\xff/status/json`) was not found |
+| `fdb_exporter_fdb_error_count` | Number of FoundationDB errors (`fdb` feature only) |
+| `fdb_exporter_fdb_binding_error_count` | Number of FoundationDB binding errors (`fdb` feature only) |
+
+The `fdb_exporter_*` counters are cumulative over the process lifetime and are
+registered lazily on their first increment, so they are absent from the output
+until the corresponding error has happened once. The two `fdb_exporter_fdb_*`
+counters only exist when the crate is built with the `fdb` feature, which is
+always the case for the exporter binary. The binary exits on a binding error
+instead of counting it, so `fdb_exporter_fdb_binding_error_count` only moves for
+library users calling `to_metrics` on a `FetchError::FdbBinding`.
 
 ## FoundationDB
 
