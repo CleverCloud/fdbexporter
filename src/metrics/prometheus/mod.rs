@@ -58,9 +58,7 @@ lazy_static! {
     .unwrap();
 }
 
-// Counters for errors only the native client can produce. They get their own block
-// because `lazy_static!` forwards item attributes to the generated struct only, not
-// to its static and trait impls, so a per-item `#[cfg]` breaks the build without `fdb`.
+// Separate block: `lazy_static!` does not forward a per-item `#[cfg]` to the generated static.
 #[cfg(feature = "fdb")]
 lazy_static! {
     static ref P_FDB_EXPORTER_FDB_ERROR: IntCounter = register_int_counter!(

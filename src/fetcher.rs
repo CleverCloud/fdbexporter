@@ -1,7 +1,4 @@
 //! Fetching and parsing of the FoundationDB `status json` document.
-//!
-//! [`parse_status`] is always available. `fetch_cluster_status`, which reads the
-//! document from a cluster with the native client, requires the `fdb` feature.
 
 #[cfg(feature = "fdb")]
 use std::{path::Path, time::Duration};
@@ -14,9 +11,8 @@ use crate::status_models::Status;
 
 /// Errors that can occur when fetching or parsing cluster status
 ///
-/// The `Fdb` and `FdbBinding` variants only exist with the `fdb` feature. Cargo
-/// unifies features across a build, so they appear as soon as any crate in the build
-/// enables `fdb`: code written without `fdb` should not match on this enum exhaustively.
+/// The `Fdb` and `FdbBinding` variants only exist with the `fdb` feature, which any
+/// crate in the build can enable, so avoid matching on this enum exhaustively without it.
 #[derive(Debug)]
 pub enum FetchError {
     /// Error parsing JSON status output
@@ -84,15 +80,14 @@ impl From<FdbBindingError> for FetchError {
 
 /// Parses a FoundationDB `status json` document into a [`Status`].
 ///
-/// This is the parser behind `fetch_cluster_status`. It is available without the
-/// `fdb` feature, for applications that read the `\xff\xff/status/json` key with
-/// their own FoundationDB client or get the document from `fdbcli`.
+/// It is available without the `fdb` feature, for applications that read the
+/// `\xff\xff/status/json` key with their own FoundationDB client or get the document
+/// from `fdbcli`.
 ///
 /// # Errors
 ///
 /// Returns [`FetchError::Parsing`] when `json` is not valid JSON or does not match
-/// the [`Status`] model. The inner error carries the path of the offending field.
-/// The failure is also logged with `tracing::error!`.
+/// the [`Status`] model; the inner error carries the path of the offending field.
 ///
 /// # Examples
 ///

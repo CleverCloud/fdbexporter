@@ -54,7 +54,6 @@
 //! use fdbexporter::{parse_status, process_metrics, MetricsConvertible};
 //! use prometheus::{Encoder, TextEncoder};
 //!
-//! /// Turns one `status json` document into Prometheus metrics.
 //! fn export(json: &[u8]) {
 //!     match parse_status(json) {
 //!         Ok(status) => process_metrics(status),
@@ -63,8 +62,7 @@
 //!     }
 //! }
 //!
-//! // A `status json` document trimmed to its mandatory fields, as read from the
-//! // `\xff\xff/status/json` key by your own FoundationDB client.
+//! // A `status json` document trimmed to its mandatory fields.
 //! export(br#"{
 //!     "client": {
 //!         "coordinators": {
@@ -78,7 +76,6 @@
 //! }"#);
 //! export(b"not a status document");
 //!
-//! // Everything lands in the default Prometheus registry, ready to be served.
 //! let mut buffer = Vec::new();
 //! TextEncoder::new().encode(&prometheus::gather(), &mut buffer)?;
 //! let text = String::from_utf8(buffer)?;
