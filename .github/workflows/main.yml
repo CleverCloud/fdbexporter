@@ -2,10 +2,6 @@ on: [push, pull_request]
 
 name: Continuous integration
 
-# No global RUSTFLAGS on purpose: the clippy jobs run with `-D warnings` and
-# must see the unused-import / dead-code warnings that feature gating can
-# introduce.
-
 jobs:
   check:
     name: Check
@@ -71,26 +67,8 @@ jobs:
           command: clippy
           args: --all-targets -- -D warnings
 
-  # ---------------------------------------------------------------------------
-  # Feature-gated modes.
-  #
-  # None of the jobs below install FoundationDB, and none of them should:
-  #   - "no fdb" is the parser-only library (`--no-default-features`): the
-  #     `foundationdb` crate is not in the dependency graph at all, and these
-  #     jobs prove that the mode builds, lints and tests without the native
-  #     client. Do not add a "Setup FoundationDB" step to them.
-  #   - "binary, fdb-7_1" only type-checks the 7.1 client path: `cargo check`
-  #     never links, and the C headers come from foundationdb's
-  #     `embedded-fdb-include` feature.
-  #   - "lib, fdb-7_3 and fdb-7_1" lints the library-only full mode the README
-  #     documents (`default-features = false, features = ["fdb-7_3"]`): the
-  #     `fdb` code without `binary`. Every other job that builds this code also
-  #     enables `binary`, whose optional dependencies (tokio, bytes, ...) are
-  #     then usable from the library too, so a `#[cfg(feature = "fdb")]` path
-  #     that starts using one of them passes those jobs and only fails here.
-  #     Clippy does not link either.
-  # Every command is runnable as-is from the repository root.
-  # ---------------------------------------------------------------------------
+  # Feature-gated modes. None of these jobs needs FoundationDB installed:
+  # the no-fdb modes have no foundationdb crate, and check/clippy never link.
 
   check-no-fdb:
     name: Check (no fdb)

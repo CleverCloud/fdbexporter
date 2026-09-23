@@ -1,13 +1,6 @@
-//! Parse a real `status json` document and export it as Prometheus metrics, through
-//! the public API only.
-//!
-//! Nothing here needs FoundationDB, so these tests run with and without the `fdb`
-//! feature; `fdb_errors_are_counted` also covers the counters that only exist with it.
-//!
-//! The Prometheus default registry is process-global and tests run on parallel
-//! threads: only `simple_status_exports_metrics` processes a status document, and
-//! each `fdb_exporter_*` counter is incremented by a single test, which asserts on
-//! its own delta.
+//! Parses a real `status json` document and exports it through the public API.
+//! Runs with and without the `fdb` feature. The default Prometheus registry is
+//! process-global, so each `fdb_exporter_*` counter is exercised by a single test.
 
 use fdbexporter::{parse_status, process_metrics, FetchError, MetricsConvertible};
 use prometheus::proto::MetricFamily;
@@ -15,26 +8,22 @@ use prometheus::proto::MetricFamily;
 /// `status json` of a three-process FoundationDB 7.1 cluster.
 const SIMPLE_FDB_STATUS: &[u8] = include_bytes!("data/simple_fdb.json");
 
-/// The metric family registered under `name` in the default registry, if any.
 fn family(name: &str) -> Option<MetricFamily> {
     prometheus::gather()
         .into_iter()
         .find(|family| family.get_name() == name)
 }
 
-/// Like `family`, but panics when `name` is not registered.
 fn registered_family(name: &str) -> MetricFamily {
     family(name).unwrap_or_else(|| panic!("`{name}` is not registered"))
 }
 
-/// Value of the unlabelled integer gauge `name`.
 fn int_gauge(name: &str) -> i64 {
     registered_family(name).get_metric()[0]
         .get_gauge()
         .get_value() as i64
 }
 
-/// Value of the integer gauge `name` for the series labelled `label="value"`.
 fn labelled_int_gauge(name: &str, label: &str, value: &str) -> i64 {
     let family = registered_family(name);
     let metric = family
@@ -50,7 +39,6 @@ fn labelled_int_gauge(name: &str, label: &str, value: &str) -> i64 {
     metric.get_gauge().get_value() as i64
 }
 
-/// Value of the unlabelled counter `name`, 0 until its first use registers it.
 fn counter(name: &str) -> u64 {
     family(name).map_or(0, |family| {
         family.get_metric()[0].get_counter().get_value() as u64
@@ -62,7 +50,6 @@ fn simple_status_exports_metrics() {
     let status = parse_status(SIMPLE_FDB_STATUS).expect("the fixture is a valid status");
     process_metrics(status);
 
-    // .client
     assert_eq!(int_gauge("fdb_client_timestamp"), 1_704_187_851);
     assert_eq!(int_gauge("fdb_client_coordinators_count"), 1);
     assert_eq!(
@@ -77,7 +64,6 @@ fn simple_status_exports_metrics() {
     assert_eq!(int_gauge("fdb_database_available"), 1);
     assert_eq!(int_gauge("fdb_database_healthy"), 1);
 
-    // .cluster
     assert_eq!(int_gauge("fdb_cluster_machines_count"), 3);
     assert_eq!(int_gauge("fdb_cluster_generation_count"), 2);
     assert_eq!(
@@ -86,7 +72,6 @@ fn simple_status_exports_metrics() {
     );
     assert_eq!(int_gauge("fdb_cluster_partition_count"), 1);
     assert_eq!(int_gauge("fdb_cluster_healthy"), 1);
-    // One series per process of the fixture.
     assert_eq!(
         registered_family("fdb_cluster_process_uptime")
             .get_metric()

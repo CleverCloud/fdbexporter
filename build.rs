@@ -5,8 +5,6 @@ fn main() {
          Please enable only one FoundationDB version feature."
     );
 
-    // A version feature only matters when the native client is built: without
-    // `fdb` the library does not depend on FoundationDB at all.
     #[cfg(all(feature = "fdb", not(any(feature = "fdb-7_1", feature = "fdb-7_3"))))]
     {
         println!(
