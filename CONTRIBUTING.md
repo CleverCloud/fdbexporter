@@ -10,8 +10,12 @@ docker compose up -d
 
 ## Running the exporter locally
 
-**You need to have `fdbcli` installed on your system, see
-[apple/foundationdb](https://github.com/apple/foundationdb/releases)**
+**You need the FoundationDB client library (`libfdb_c`, shipped in the
+`foundationdb-clients` package of
+[apple/foundationdb](https://github.com/apple/foundationdb/releases)) installed on
+your system to run the exporter and the default test suite.** Only
+`cargo test --no-default-features` (parser + metrics, no FoundationDB client)
+needs nothing installed.
 
 Generate `fdb.cluster` file from copying from `fdbexporter` container:
 
@@ -27,6 +31,32 @@ export FDB_CLUSTER_FILE="$PWD/fdb.cluster"
 cargo run
 ```
 
+## Running the tests
+
+```
+# Full suite: needs the FoundationDB client library, not a running cluster
+# (the doctests which talk to a cluster are `no_run`)
+cargo test
+
+# Parser + metrics only: nothing to install
+cargo test --no-default-features
+```
+
+`tests/status_metrics.rs` feeds `tests/data/simple_fdb.json`, a captured
+`status json`, to `parse_status` and `process_metrics` and checks the resulting
+Prometheus metrics without a FoundationDB cluster. It runs in both modes (one
+extra test covers the `fdb`-only error counters when the feature is on) and is
+the place to add a check when you add a metric.
+
+## Project layout
+
+- `src/fetcher.rs`: `parse_status` (always available) and `fetch_cluster_status`,
+  which reads the `\xff\xff/status/json` key with the FoundationDB client
+  (`fdb` feature only).
+- `src/status_models/`: serde models of `status json`.
+- `src/metrics/`: the `MetricsConvertible` trait and `process_metrics`, with the
+  Prometheus implementation in `src/metrics/prometheus/`.
+- `src/main.rs`: the exporter binary (`binary` feature).
 
 ## Implement a new metric
 
