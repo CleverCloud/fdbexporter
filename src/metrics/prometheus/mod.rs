@@ -51,6 +51,18 @@ lazy_static! {
         "Number of parsing errors encountered",
     }
     .unwrap();
+    static ref P_FDB_EXPORTER_STATUS_NOT_FOUND: IntCounter = register_int_counter!(
+        "fdb_exporter_status_not_found_count",
+        "Number of times the status key was not found"
+    )
+    .unwrap();
+}
+
+// Counters for errors only the native client can produce. They get their own block
+// because `lazy_static!` forwards item attributes to the generated struct only, not
+// to its static and trait impls, so a per-item `#[cfg]` breaks the build without `fdb`.
+#[cfg(feature = "fdb")]
+lazy_static! {
     static ref P_FDB_EXPORTER_FDB_ERROR: IntCounter = register_int_counter!(
         "fdb_exporter_fdb_error_count",
         "Number of FoundationDB errors"
@@ -61,17 +73,14 @@ lazy_static! {
         "Number of FoundationDB binding errors"
     )
     .unwrap();
-    static ref P_FDB_EXPORTER_STATUS_NOT_FOUND: IntCounter = register_int_counter!(
-        "fdb_exporter_status_not_found_count",
-        "Number of times the status key was not found"
-    )
-    .unwrap();
 }
 
 impl MetricsConvertible for FetchError {
     fn to_metrics(&self, _: &[&str]) {
         match self {
+            #[cfg(feature = "fdb")]
             FetchError::Fdb(_) => P_FDB_EXPORTER_FDB_ERROR.inc(),
+            #[cfg(feature = "fdb")]
             FetchError::FdbBinding(_) => P_FDB_EXPORTER_FDB_BINDING_ERROR.inc(),
             FetchError::StatusNotFound => P_FDB_EXPORTER_STATUS_NOT_FOUND.inc(),
             FetchError::Parsing(_) => P_FDB_EXPORTER_PARSING_ERROR.inc(),

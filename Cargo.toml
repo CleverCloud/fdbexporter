@@ -18,8 +18,10 @@ path = "src/main.rs"
 required-features = ["binary"]
 
 [features]
-default = ["binary", "fdb-7_3"]
+default = ["binary", "fdb", "fdb-7_3"]
+# The exporter executable. It polls FoundationDB, so it implies `fdb`.
 binary = [
+    "fdb",
     "dep:tokio",
     "dep:hyper",
     "dep:hyper-util",
@@ -28,8 +30,16 @@ binary = [
     "dep:http-body-util",
     "dep:bytes",
 ]
-fdb-7_1 = ["foundationdb/fdb-7_1"]
-fdb-7_3 = ["foundationdb/fdb-7_3"]
+# `fdb` gates the native FoundationDB client (fdb-rs) and the fetcher
+# (`fetch_cluster_status`). Without it the library only provides the status
+# models, `parse_status` and the Prometheus metrics, and no foundationdb crate
+# is in the dependency graph. The version features and `binary` imply it.
+# `fdb` alone, without a version feature, is rejected by fdb-rs itself: this is
+# expected, enable exactly one of the version features below.
+fdb = ["dep:foundationdb"]
+# FoundationDB API version, mutually exclusive (checked in build.rs).
+fdb-7_1 = ["fdb", "foundationdb/fdb-7_1"]
+fdb-7_3 = ["fdb", "foundationdb/fdb-7_3"]
 
 [dependencies]
 # Core library dependencies (always available)
@@ -40,8 +50,11 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["serde_derive", "std"]}
 serde_path_to_error = "0.1"
 lazy_static = "1.4.0"
-foundationdb = { version = "0.11.0", features = ["embedded-fdb-include"], default-features = false }
 url = {version = "2.5.8", features = ["serde"]}
+
+# Native FoundationDB client (only with "fdb" feature). Keep
+# `default-features = false`: foundationdb's defaults also enable `recipes`.
+foundationdb = { version = "0.11.0", features = ["embedded-fdb-include"], default-features = false, optional = true }
 
 # Binary-specific dependencies (only with "binary" feature)
 tokio = { version = "1.35.0", features = ["macros", "rt-multi-thread", "signal", "time"], optional = true }
