@@ -35,6 +35,22 @@ jobs:
         with:
           command: test
 
+  test-fdb-7_4:
+    name: Test Suite (binary, fdb-7_4)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Setup FoundationDB
+        uses: foundationdb-rs/foundationdb-actions-install@v2.3.0
+        with:
+          version: "7.4.10"
+      - run: cargo test --no-default-features --features binary,fdb-7_4
+
   fmt:
     name: Rustfmt
     runs-on: ubuntu-latest
@@ -120,7 +136,7 @@ jobs:
       - run: cargo check --no-default-features --features binary,fdb-7_1
 
   clippy-lib-fdb:
-    name: Clippy (lib, fdb-7_3 and fdb-7_1)
+    name: Clippy (lib, fdb-7_4, fdb-7_3 and fdb-7_1)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -130,5 +146,6 @@ jobs:
           toolchain: stable
           override: true
       - run: rustup component add clippy
+      - run: cargo clippy --lib --tests --no-default-features --features fdb-7_4 -- -D warnings
       - run: cargo clippy --lib --tests --no-default-features --features fdb-7_3 -- -D warnings
       - run: cargo clippy --lib --tests --no-default-features --features fdb-7_1 -- -D warnings
