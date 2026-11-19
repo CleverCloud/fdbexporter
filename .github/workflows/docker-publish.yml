@@ -13,17 +13,22 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     outputs:
+      latest_7_4: ${{ steps.fdb-versions.outputs.LATEST_7_4_VERSION }}
       latest_7_3: ${{ steps.fdb-versions.outputs.LATEST_7_3_VERSION }}
       latest_7_1: ${{ steps.fdb-versions.outputs.LATEST_7_1_VERSION }}
     steps:
       - name: Fetch latest releases
         id: fdb-versions
         run: |
+          # Every 7.4 release is flagged as a pre-release
+          export LATEST_7_4_VERSION=$(gh release list -R apple/foundationdb --limit 100 --json tagName --exclude-drafts -q '[.[].tagName | select(test("^7\\.4\\.[0-9]+$"))] | max_by(split(".") | map(tonumber))')
           export LATEST_7_3_VERSION=$(gh release list -R apple/foundationdb --exclude-pre-releases --json name,tagName --exclude-drafts -q "[.[] | select(.name | startswith(\"Release 7.3\"))][0].tagName")
           export LATEST_7_1_VERSION=$(gh release list -R apple/foundationdb --exclude-pre-releases --json name,tagName --exclude-drafts -q "[.[] | select(.name | startswith(\"Release 7.1\"))][0].tagName")
+          echo "LATEST_7_4_VERSION=${LATEST_7_4_VERSION}" >> "${GITHUB_OUTPUT}"
           echo "LATEST_7_3_VERSION=${LATEST_7_3_VERSION}" >> "${GITHUB_OUTPUT}"
           echo "LATEST_7_1_VERSION=${LATEST_7_1_VERSION}" >> "${GITHUB_OUTPUT}"
 
+          echo ${LATEST_7_4_VERSION}
           echo ${LATEST_7_3_VERSION}
           echo ${LATEST_7_1_VERSION}
 
@@ -33,8 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [determine-versions]
     strategy:
+      fail-fast: false
       matrix:
         FOUNDATIONDB_REF:
+          - ${{needs.determine-versions.outputs.latest_7_4}}
           - ${{needs.determine-versions.outputs.latest_7_3}}
           - ${{needs.determine-versions.outputs.latest_7_1}}
           # We can add some static version as we need them
