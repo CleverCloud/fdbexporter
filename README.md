@@ -51,13 +51,20 @@ docker run \
 The exporter images are tagged based on both the exporter version and on
 FoundationDB versions. Each new version of the exporter will create a container
 tag as follow: `${exporter_version}-${foundationdb_version}`. Our CI will create
-tags for latest patch version for FoundationDB `7.3` and `7.1`. We do not create
-tag for version `7.2` as it shouldn't be used in production.
+tags for latest patch version for FoundationDB `7.4`, `7.3` and `7.1`. We do not create
+tag for version `7.2` as it shouldn't be used in production. For `7.3` and `7.1`, the
+latest patch is the latest release not flagged as a pre-release on GitHub. Every `7.4`
+release is flagged as one, so `7.4` images follow the latest `7.4` patch.
 
 ### Binary
 
 Go to [releases](https://github.com/CleverCloud/fdbexporter/releases) page
 and download the compressed asset matching your system distribution.
+
+The binary is built for the FoundationDB 7.3 API and loads the client library
+(`libfdb_c`) at runtime: install the `foundationdb-clients` package matching the
+version of your cluster, `7.3.x` or `7.4.x`. For a `7.1` cluster, use a `7.1` image or
+[build](#build) with `--no-default-features --features binary,fdb-7_1`.
 
 ```
 A monitoring tool for FoundationDB with exporting capabilities for prometheus
@@ -87,16 +94,20 @@ docker compose up -d
 curl localhost:9090
 ```
 
+Set `FDB_VERSION` to run another FoundationDB version, for instance
+`FDB_VERSION=7.4.10 docker compose up -d --build`.
+
 ## Using fdbexporter as a library
 
 The crate can be used in two modes, selected with cargo features:
 
-| Feature   | What it enables                                                              | Notes                                                                                    |
-| --------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `binary`  | The `fdbexporter` executable: CLI, HTTP server and polling loop              | Implies `fdb`. Default                                                                   |
-| `fdb`     | The native FoundationDB client (fdb-rs) and `fetch_cluster_status`           | Must be combined with `fdb-7_1` or `fdb-7_3`: fdb-rs itself rejects `fdb` alone. Default |
-| `fdb-7_1` | fdb-rs built against the FoundationDB 7.1 client API                         | Implies `fdb`. Mutually exclusive with `fdb-7_3`                                         |
-| `fdb-7_3` | fdb-rs built against the FoundationDB 7.3 client API                         | Implies `fdb`. Mutually exclusive with `fdb-7_1`. Default                                |
+| Feature   | What it enables                                                              | Notes                                                                                       |
+| --------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `binary`  | The `fdbexporter` executable: CLI, HTTP server and polling loop              | Implies `fdb`. Default                                                                      |
+| `fdb`     | The native FoundationDB client (fdb-rs) and `fetch_cluster_status`           | Must be combined with one version feature below: fdb-rs itself rejects `fdb` alone. Default |
+| `fdb-7_1` | fdb-rs built against the FoundationDB 7.1 client API                         | Implies `fdb`. Mutually exclusive with the other version features                           |
+| `fdb-7_3` | fdb-rs built against the FoundationDB 7.3 client API                         | Implies `fdb`. Mutually exclusive with the other version features. Default                  |
+| `fdb-7_4` | fdb-rs built against the FoundationDB 7.4 client API                         | Implies `fdb`. Mutually exclusive with the other version features                           |
 
 Without `fdb`, the crate only contains the `status json` serde models
 (`fdbexporter::status_models`), the `parse_status` parser and the Prometheus metrics
@@ -182,11 +193,17 @@ cargo build --release --no-default-features --features "binary,fdb-7_1"
 # Build for FoundationDB 7.3 explicitly
 cargo build --release --no-default-features --features "binary,fdb-7_3"
 
+# Build for FoundationDB 7.4
+cargo build --release --no-default-features --features "binary,fdb-7_4"
+
 # Build library only for FoundationDB 7.1
 cargo build --lib --no-default-features --features fdb-7_1
 
 # Build library only for FoundationDB 7.3
 cargo build --lib --no-default-features --features fdb-7_3
+
+# Build library only for FoundationDB 7.4
+cargo build --lib --no-default-features --features fdb-7_4
 
 # Build library only, parser + metrics without the FoundationDB client
 # (no FoundationDB client library needed)
@@ -199,7 +216,7 @@ cargo test --no-default-features
 ./target/release/fdbexporter
 ```
 
-**Note**: The `fdb-7_1` and `fdb-7_3` features are mutually exclusive. You must select only one version at build time. `fdb` on its own, without a version feature, is rejected by fdb-rs.
+**Note**: The `fdb-7_1`, `fdb-7_3` and `fdb-7_4` features are mutually exclusive. You must select only one version at build time. `fdb` on its own, without a version feature, is rejected by fdb-rs.
 
 ## Contributing
 
