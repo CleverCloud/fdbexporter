@@ -22,8 +22,10 @@ RUN if echo "${FDB_VERSION}" | grep -q "^7\.1\."; then \
       CARGO_FEATURES="--no-default-features --features binary,fdb-7_1"; \
     elif echo "${FDB_VERSION}" | grep -q "^7\.3\."; then \
       CARGO_FEATURES="--no-default-features --features binary,fdb-7_3"; \
+    elif echo "${FDB_VERSION}" | grep -q "^7\.4\."; then \
+      CARGO_FEATURES="--no-default-features --features binary,fdb-7_4"; \
     else \
-      echo "Unsupported FDB_VERSION: ${FDB_VERSION}. Must be 7.1.x or 7.3.x" && exit 1; \
+      echo "Unsupported FDB_VERSION: ${FDB_VERSION}. Must be 7.1.x, 7.3.x or 7.4.x" && exit 1; \
     fi && \
     echo "Building with features: ${CARGO_FEATURES}" && \
     cargo build --release ${CARGO_FEATURES}
