@@ -32,8 +32,8 @@
 //!
 //! - `fdb`: the native FoundationDB client and `fetch_cluster_status`. It needs one
 //!   version feature: fdb-rs rejects a build with `fdb` alone.
-//! - `fdb-7_1`, `fdb-7_3`: the FoundationDB API version. Each implies `fdb`, and they
-//!   are mutually exclusive.
+//! - `fdb-7_1`, `fdb-7_3`, `fdb-7_4`: the FoundationDB API version. Each implies `fdb`,
+//!   and they are mutually exclusive.
 //! - `binary`: the `fdbexporter` executable (HTTP server and CLI). Implies `fdb`.
 //!
 //! The default features are `binary`, `fdb` and `fdb-7_3`.

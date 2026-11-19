@@ -34,6 +34,7 @@ fdb = ["dep:foundationdb"]
 # FoundationDB API version, mutually exclusive (checked in build.rs).
 fdb-7_1 = ["fdb", "foundationdb/fdb-7_1"]
 fdb-7_3 = ["fdb", "foundationdb/fdb-7_3"]
+fdb-7_4 = ["fdb", "foundationdb/fdb-7_4"]
 
 [dependencies]
 # Core library dependencies (always available)

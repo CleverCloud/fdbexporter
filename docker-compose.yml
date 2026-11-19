@@ -36,7 +36,10 @@ services:
     depends_on:
       - fdb-coordinator
     restart: always
-    build: .
+    build:
+      context: .
+      args:
+        FDB_VERSION: ${FDB_VERSION}
     environment:
       FDB_COORDINATOR: ${FDB_COORDINATOR}
       FDB_NETWORKING_MODE: ${FDB_NETWORKING_MODE}
