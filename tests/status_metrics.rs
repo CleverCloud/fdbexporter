@@ -7,6 +7,8 @@ use prometheus::proto::MetricFamily;
 
 /// `status json` of a three-process FoundationDB 7.1 cluster.
 const SIMPLE_FDB_STATUS: &[u8] = include_bytes!("data/simple_fdb.json");
+/// `status json` of a three-process FoundationDB 7.4 cluster.
+const SIMPLE_FDB_7_4_STATUS: &[u8] = include_bytes!("data/simple_fdb_7_4.json");
 
 fn family(name: &str) -> Option<MetricFamily> {
     prometheus::gather()
@@ -78,6 +80,15 @@ fn simple_status_exports_metrics() {
             .len(),
         3
     );
+}
+
+// Parsed only: exporting it would race with the gauge values asserted above.
+#[test]
+fn fdb_7_4_status_parses() {
+    let status = parse_status(SIMPLE_FDB_7_4_STATUS).expect("the 7.4 fixture is a valid status");
+    let cluster = status.cluster.expect("the 7.4 fixture has a cluster");
+    assert_eq!(cluster.processes.len(), 3);
+    assert_eq!(cluster.machines.len(), 3);
 }
 
 #[test]

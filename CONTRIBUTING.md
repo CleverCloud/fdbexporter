@@ -46,7 +46,8 @@ cargo test --no-default-features
 `status json`, to `parse_status` and `process_metrics` and checks the resulting
 Prometheus metrics without a FoundationDB cluster. It runs in both modes (one
 extra test covers the `fdb`-only error counters when the feature is on) and is
-the place to add a check when you add a metric.
+the place to add a check when you add a metric. It also parses
+`tests/data/simple_fdb_7_4.json`, captured from a FoundationDB 7.4 cluster.
 
 ## Project layout
 
